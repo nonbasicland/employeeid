@@ -1,21 +1,26 @@
-// Array of employee data (replace with your own data)
-const employeeData = [
-  { firstName: 'John', lastName: 'Doe' },
-  { firstName: 'Jane', lastName: 'Smith' },
-  // Add more employee data as needed
+// Array of employee photo file names
+const employeePhotos = [
+  'John Doe.jpg',
+  'Jane Smith.jpg',
+  // Add more employee photo file names as needed
 ];
 
 let employeeImages = [];
-let currentEmployeeIndex = 0;
-let correctGuesses = 0;
-let totalGuesses = 0;
+let employeeData = [];
 
 // Function to load employee images from a folder
 function loadEmployeeImages() {
+  employeeData = employeePhotos.map(photo => {
+    const nameParts = photo.split('.jpg')[0].split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ');
+    return { firstName, lastName };
+  });
+
   for (let i = 0; i < employeeData.length; i++) {
     const employee = employeeData[i];
     const image = new Image();
-    image.src = `employee-photos/${i + 1}.jpg`; // Assuming the images are named as 1.jpg, 2.jpg, 3.jpg, etc.
+    image.src = `employee-photos/${employeePhotos[i]}`; // Assuming the images are stored in "employee-photos" folder
     employeeImages.push(image);
   }
 }
