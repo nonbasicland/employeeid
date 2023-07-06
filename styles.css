@@ -3,3 +3,12 @@
   width: 300px;
   height: 300px;
 }
+
+.hidden {
+  display: none;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
