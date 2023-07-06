@@ -8,6 +8,11 @@ const employeePhotos = [
 let employeeImages = [];
 let employeeData = [];
 
+let currentEmployeeIndex = 0;
+let correctGuesses = 0;
+let totalGuesses = 0;
+let isDisplayingAnswer = false;
+
 // Function to load employee images from a folder
 function loadEmployeeImages() {
   employeeData = employeePhotos.map(photo => {
@@ -43,6 +48,8 @@ function displayEmployee() {
 
 // Function to handle button click event
 function submitGuess() {
+  if (isDisplayingAnswer) return;
+
   const firstNameInput = document.getElementById('first-name').value.trim();
   const lastNameInput = document.getElementById('last-name').value.trim();
 
@@ -57,7 +64,30 @@ function submitGuess() {
   totalGuesses++;
   updateTally();
   clearInput();
-  getNextEmployee();
+  displayAnswer(employee);
+}
+
+// Function to display the correct employee name for 10 seconds
+function displayAnswer(employee) {
+  isDisplayingAnswer = true;
+
+  const firstNameInput = document.getElementById('first-name');
+  const lastNameInput = document.getElementById('last-name');
+  const answerElement = document.getElementById('answer');
+
+  firstNameInput.classList.add('hidden');
+  lastNameInput.classList.add('hidden');
+  answerElement.textContent = `${employee.firstName} ${employee.lastName}`;
+  answerElement.classList.remove('hidden');
+
+  setTimeout(() => {
+    isDisplayingAnswer = false;
+    answerElement.textContent = '';
+    answerElement.classList.add('hidden');
+    firstNameInput.classList.remove('hidden');
+    lastNameInput.classList.remove('hidden');
+    getNextEmployee();
+  }, 10000);
 }
 
 // Function to update the tally list
