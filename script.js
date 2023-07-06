@@ -7,9 +7,32 @@ let isDisplayingAnswer = false;
 
 // Function to fetch employee photos from a folder
 async function fetchEmployeePhotos() {
-  const response = await fetch('employee-photos/');
-  const fileNames = await response.json();
-  employeePhotos = fileNames;
+  try {
+    const response = await fetch('employee-photos/');
+    if (!response.ok) {
+      throw new Error('Failed to fetch employee photos.');
+    }
+    const fileNames = await response.json();
+    if (fileNames.length === 0) {
+      throw new Error('No employee photos found in the folder.');
+    }
+    employeePhotos = fileNames;
+  } catch (error) {
+    displayErrorMessage(error.message);
+  }
+}
+
+// Function to display an error message
+function displayErrorMessage(message) {
+  const errorElement = document.getElementById('error-message');
+  errorElement.textContent = message;
+  errorElement.classList.remove('hidden');
+}
+
+// Function to hide the error message
+function hideErrorMessage() {
+  const errorElement = document.getElementById('error-message');
+  errorElement.classList.add('hidden');
 }
 
 // Function to extract the first name and last name from the photo file name
@@ -38,7 +61,7 @@ function displayEmployee() {
   imageElement.alt = `${employeeName.firstName} ${employeeName.lastName}`;
 }
 
-// Function to handle button click event
+// Function to handle button clickevent
 function submitGuess() {
   if (isDisplayingAnswer) return;
 
@@ -126,8 +149,11 @@ document.getElementById('reset-btn').addEventListener('click', resetTally);
 // Fetch employee photos, shuffle them, and display the initial employee
 fetchEmployeePhotos()
   .then(() => {
-    shuffleEmployeePhotos();
-    displayEmployee();
+    if (employeePhotos.length > 0) {
+      hideErrorMessage();
+      shuffleEmployeePhotos();
+      displayEmployee();
+    }
   })
   .catch(error => {
     console.error('Error fetching employee photos:', error);
