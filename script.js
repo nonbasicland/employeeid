@@ -1,49 +1,41 @@
-// Array of employee photo file names
-const employeePhotos = [
-  'John Doe.jpg',
-  'Jane Smith.jpg',
-  // Add more employee photo file names as needed
-];
-
-let employeeImages = [];
-let employeeData = [];
+let employeePhotos = [];
 
 let currentEmployeeIndex = 0;
 let correctGuesses = 0;
 let totalGuesses = 0;
 let isDisplayingAnswer = false;
 
-// Function to load employee images from a folder
-function loadEmployeeImages() {
-  employeeData = employeePhotos.map(photo => {
-    const nameParts = photo.split('.jpg')[0].split(' ');
-    const firstName = nameParts[0];
-    const lastName = nameParts.slice(1).join(' ');
-    return { firstName, lastName };
-  });
-
-  for (let i = 0; i < employeeData.length; i++) {
-    const employee = employeeData[i];
-    const image = new Image();
-    image.src = `employee-photos/${employeePhotos[i]}`; // Assuming the images are stored in "employee-photos" folder
-    employeeImages.push(image);
-  }
+// Function to fetch employee photos from a folder
+async function fetchEmployeePhotos() {
+  const response = await fetch('employee-photos/');
+  const fileNames = await response.json();
+  employeePhotos = fileNames;
 }
 
-// Function to shuffle the employee images array
-function shuffleEmployeeImages() {
-  for (let i = employeeImages.length - 1; i > 0; i--) {
+// Function to extract the first name and last name from the photo file name
+function extractEmployeeName(photoFileName) {
+  const fileNameWithoutExtension = photoFileName.split('.jpg')[0];
+  const nameParts = fileNameWithoutExtension.split(' ');
+  const firstName = nameParts[0];
+  const lastName = nameParts.slice(1).join(' ');
+  return { firstName, lastName };
+}
+
+// Function to shuffle the employee photos array
+function shuffleEmployeePhotos() {
+  for (let i = employeePhotos.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [employeeImages[i], employeeImages[j]] = [employeeImages[j], employeeImages[i]];
+    [employeePhotos[i], employeePhotos[j]] = [employeePhotos[j], employeePhotos[i]];
   }
 }
 
 // Function to display the current employee
 function displayEmployee() {
-  const employee = employeeData[currentEmployeeIndex];
+  const employeePhoto = employeePhotos[currentEmployeeIndex];
+  const employeeName = extractEmployeeName(employeePhoto);
   const imageElement = document.getElementById('employee-image');
-  imageElement.src = employeeImages[currentEmployeeIndex].src;
-  imageElement.alt = `${employee.firstName} ${employee.lastName}`;
+  imageElement.src = `employee-photos/${employeePhoto}`;
+  imageElement.alt = `${employeeName.firstName} ${employeeName.lastName}`;
 }
 
 // Function to handle button click event
@@ -53,10 +45,12 @@ function submitGuess() {
   const firstNameInput = document.getElementById('first-name').value.trim();
   const lastNameInput = document.getElementById('last-name').value.trim();
 
-  const employee = employeeData[currentEmployeeIndex];
+  const employeePhoto = employeePhotos[currentEmployeeIndex];
+  const employeeName = extractEmployeeName(employeePhoto);
+
   if (
-    firstNameInput.toLowerCase() === employee.firstName.toLowerCase() &&
-    lastNameInput.toLowerCase() === employee.lastName.toLowerCase()
+    firstNameInput.toLowerCase() === employeeName.firstName.toLowerCase() &&
+    lastNameInput.toLowerCase() === employeeName.lastName.toLowerCase()
   ) {
     correctGuesses++;
   }
@@ -64,11 +58,11 @@ function submitGuess() {
   totalGuesses++;
   updateTally();
   clearInput();
-  displayAnswer(employee);
+  displayAnswer(employeeName);
 }
 
-// Function to display the correct employee name for 10 seconds
-function displayAnswer(employee) {
+// Function to display the correct employee name for 10seconds
+function displayAnswer(employeeName) {
   isDisplayingAnswer = true;
 
   const firstNameInput = document.getElementById('first-name');
@@ -77,7 +71,7 @@ function displayAnswer(employee) {
 
   firstNameInput.classList.add('hidden');
   lastNameInput.classList.add('hidden');
-  answerElement.textContent = `${employee.firstName} ${employee.lastName}`;
+  answerElement.textContent = `${employeeName.firstName} ${employeeName.lastName}`;
   answerElement.classList.remove('hidden');
 
   setTimeout(() => {
@@ -107,11 +101,11 @@ function clearInput() {
 // Function to get the next employee
 function getNextEmployee() {
   currentEmployeeIndex++;
-  if (currentEmployeeIndex >= employeeData.length) {
+  if (currentEmployeeIndex >= employeePhotos.length) {
     // Display a message or perform any action when all employees have been shown
     alert('All employees have been shown.');
     currentEmployeeIndex = 0;
-    shuffleEmployeeImages(); // Reshuffle the images for the next session
+    shuffleEmployeePhotos(); // Reshuffle the photos for the next session
   }
   displayEmployee();
 }
@@ -129,9 +123,12 @@ function resetTally() {
 document.getElementById('submit-btn').addEventListener('click', submitGuess);
 document.getElementById('reset-btn').addEventListener('click', resetTally);
 
-// Load employee images and shuffle them
-loadEmployeeImages();
-shuffleEmployeeImages();
-
-// Initial display
-displayEmployee();
+// Fetch employee photos and display the initial employee
+fetchEmployeePhotos()
+  .then(() => {
+    shuffleEmployeePhotos();
+    displayEmployee();
+  })
+  .catch(error => {
+    console.error('Error fetching employee photos:', error);
+  });
