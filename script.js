@@ -1,19 +1,38 @@
 // Array of employee data (replace with your own data)
 const employeeData = [
-  { firstName: 'John', lastName: 'Doe', imageUrl: 'john_doe.jpg' },
-  { firstName: 'Jane', lastName: 'Smith', imageUrl: 'jane_smith.jpg' },
+  { firstName: 'John', lastName: 'Doe' },
+  { firstName: 'Jane', lastName: 'Smith' },
   // Add more employee data as needed
 ];
 
+let employeeImages = [];
 let currentEmployeeIndex = 0;
 let correctGuesses = 0;
 let totalGuesses = 0;
+
+// Function to load employee images from a folder
+function loadEmployeeImages() {
+  for (let i = 0; i < employeeData.length; i++) {
+    const employee = employeeData[i];
+    const image = new Image();
+    image.src = `employee-photos/${i + 1}.jpg`; // Assuming the images are named as 1.jpg, 2.jpg, 3.jpg, etc.
+    employeeImages.push(image);
+  }
+}
+
+// Function to shuffle the employee images array
+function shuffleEmployeeImages() {
+  for (let i = employeeImages.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [employeeImages[i], employeeImages[j]] = [employeeImages[j], employeeImages[i]];
+  }
+}
 
 // Function to display the current employee
 function displayEmployee() {
   const employee = employeeData[currentEmployeeIndex];
   const imageElement = document.getElementById('employee-image');
-  imageElement.src = employee.imageUrl;
+  imageElement.src = employeeImages[currentEmployeeIndex].src;
   imageElement.alt = `${employee.firstName} ${employee.lastName}`;
 }
 
@@ -57,6 +76,7 @@ function getNextEmployee() {
     // Display a message or perform any action when all employees have been shown
     alert('All employees have been shown.');
     currentEmployeeIndex = 0;
+    shuffleEmployeeImages(); // Reshuffle the images for the next session
   }
   displayEmployee();
 }
@@ -67,4 +87,16 @@ function resetTally() {
   correctGuesses = 0;
   totalGuesses = 0;
   const tallyList = document.getElementById('tally-list');
-  tallyList.innerHTML
+  tallyList.innerHTML = '';
+}
+
+// Event listeners for button clicks
+document.getElementById('submit-btn').addEventListener('click', submitGuess);
+document.getElementById('reset-btn').addEventListener('click', resetTally);
+
+// Load employee images and shuffle them
+loadEmployeeImages();
+shuffleEmployeeImages();
+
+// Initial display
+displayEmployee();
