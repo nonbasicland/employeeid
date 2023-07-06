@@ -61,7 +61,7 @@ function submitGuess() {
   displayAnswer(employeeName);
 }
 
-// Function to display the correct employee name for 10seconds
+// Function to display the correct employee name for 10 seconds
 function displayAnswer(employeeName) {
   isDisplayingAnswer = true;
 
@@ -123,7 +123,7 @@ function resetTally() {
 document.getElementById('submit-btn').addEventListener('click', submitGuess);
 document.getElementById('reset-btn').addEventListener('click', resetTally);
 
-// Fetch employee photos and display the initial employee
+// Fetch employee photos, shuffle them, and display the initial employee
 fetchEmployeePhotos()
   .then(() => {
     shuffleEmployeePhotos();
